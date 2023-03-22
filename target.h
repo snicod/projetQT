@@ -10,8 +10,12 @@ Q_OBJECT
 public:
     explicit Target(QWidget *parent = nullptr);
 
+signals:
+    void clicked();
+
 protected:
     void paintEvent(QPaintEvent *event) override;
+    void mousePressEvent(QMouseEvent *event) override;
 };
 
-#endif 
+#endif

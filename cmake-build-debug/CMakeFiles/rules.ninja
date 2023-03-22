@@ -42,7 +42,7 @@ rule CUSTOM_COMMAND
 # Rule for re-running cmake.
 
 rule RERUN_CMAKE
-  command = /home/simon/Bureau/CLion-2022.3.1/clion-2022.3.1/bin/cmake/linux/bin/cmake --regenerate-during-build -S/home/simon/Bureau/IUT/2eAnnee/S4/qt -B/home/simon/Bureau/IUT/2eAnnee/S4/qt/cmake-build-debug
+  command = /home/simon/Bureau/CLion-2022.3.1/clion-2022.3.1/bin/cmake/linux/bin/cmake --regenerate-during-build -S"/home/simon/Bureau/IUT/2eAnnee/S4/qtTuto/reparation proj/projetQT" -B"/home/simon/Bureau/IUT/2eAnnee/S4/qtTuto/reparation proj/projetQT/cmake-build-debug"
   description = Re-running CMake...
   generator = 1
 

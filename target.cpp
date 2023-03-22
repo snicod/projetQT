@@ -1,5 +1,6 @@
 #include "target.h"
 #include <QPainter>
+#include <QMouseEvent>
 
 Target::Target(QWidget *parent) : QWidget(parent)
 {
@@ -26,6 +27,13 @@ void Target::paintEvent(QPaintEvent *event)
         radius -= 20;
         brush.setColor(brush.color() == Qt::red ? Qt::white : Qt::red);
         painter.setBrush(brush);
+    }
+}
+
+void Target::mousePressEvent(QMouseEvent *event)
+{
+    if (event->button() == Qt::LeftButton) {
+        emit clicked();
     }
 }
 
