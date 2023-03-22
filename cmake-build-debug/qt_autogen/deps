@@ -25,6 +25,8 @@ qt_autogen/timestamp: \
 	/home/simon/Bureau/IUT/2eAnnee/S4/qt/main.cpp \
 	/home/simon/Bureau/IUT/2eAnnee/S4/qt/mainWindow.cpp \
 	/home/simon/Bureau/IUT/2eAnnee/S4/qt/mainWindow.h \
+	/home/simon/Bureau/IUT/2eAnnee/S4/qt/target.cpp \
+	/home/simon/Bureau/IUT/2eAnnee/S4/qt/target.h \
 	/usr/include/asm-generic/errno-base.h \
 	/usr/include/asm-generic/errno.h \
 	/usr/include/assert.h \
@@ -336,6 +338,7 @@ qt_autogen/timestamp: \
 	/usr/include/x86_64-linux-gnu/qt5/QtGui/qtransform.h \
 	/usr/include/x86_64-linux-gnu/qt5/QtGui/qwindowdefs.h \
 	/usr/include/x86_64-linux-gnu/qt5/QtWidgets/QMainWindow \
+	/usr/include/x86_64-linux-gnu/qt5/QtWidgets/QWidget \
 	/usr/include/x86_64-linux-gnu/qt5/QtWidgets/qmainwindow.h \
 	/usr/include/x86_64-linux-gnu/qt5/QtWidgets/qsizepolicy.h \
 	/usr/include/x86_64-linux-gnu/qt5/QtWidgets/qtabwidget.h \

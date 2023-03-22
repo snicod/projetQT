@@ -85,6 +85,12 @@
 			"MU",
 			"EWIEGA46WW/moc_mainWindow.cpp",
 			null
+		],
+		[
+			"/home/simon/Bureau/IUT/2eAnnee/S4/qt/target.h",
+			"MU",
+			"EWIEGA46WW/moc_target.cpp",
+			null
 		]
 	],
 	"HEADER_EXTENSIONS" : [ "h", "hh", "h++", "hm", "hpp", "hxx", "in", "txx" ],
@@ -138,7 +144,8 @@
 	"SOURCES" : 
 	[
 		[ "/home/simon/Bureau/IUT/2eAnnee/S4/qt/main.cpp", "MU", null ],
-		[ "/home/simon/Bureau/IUT/2eAnnee/S4/qt/mainWindow.cpp", "MU", null ]
+		[ "/home/simon/Bureau/IUT/2eAnnee/S4/qt/mainWindow.cpp", "MU", null ],
+		[ "/home/simon/Bureau/IUT/2eAnnee/S4/qt/target.cpp", "MU", null ]
 	],
 	"UIC_OPTIONS" : [],
 	"UIC_SEARCH_PATHS" : [],
