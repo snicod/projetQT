@@ -9,15 +9,10 @@
 #include <QGraphicsProxyWidget>
 #include <QMessageBox>
 #include <QDesktopWidget>
-#include <QTimer>
 #include <QTime>
 #include <QRandomGenerator>
-#include <QElapsedTimer>
 
 #include "target.h"
-
-//variable globale
-QTimer countdownTimer;
 
 // Fonction pour afficher les règles du jeu
 void showRules()
@@ -31,7 +26,6 @@ void showRules()
                             "Amusez-vous bien!");
     rulesMessageBox.exec();
 }
-
 
 // Fonction pour passer au menu Solo
 void switchToSoloMenu(QGraphicsScene &scene,
@@ -83,56 +77,6 @@ QPointF generateRandomTargetPosition(QGraphicsView &view, Target *target) {
     int y = QRandomGenerator::global()->bounded(view.height() - target->height());
     return QPointF(x, y);
 }
-
-
-void startGameEasy(QGraphicsScene &scene, QGraphicsView &view, QLabel &countdownLabel,
-                   QGraphicsProxyWidget *easyButtonProxy, QGraphicsProxyWidget *hardButtonProxy, QGraphicsProxyWidget *backButtonProxy,
-                   QGraphicsProxyWidget *soloButtonProxy, QGraphicsProxyWidget *multiplayerButtonProxy, QGraphicsProxyWidget *exitButtonProxy,
-                   QGraphicsProxyWidget *titleProxy, QGraphicsProxyWidget *target1Proxy, QGraphicsProxyWidget *target2Proxy) {
-    // Retirer les boutons, les targets et le titre de la scène
-    scene.removeItem(easyButtonProxy);
-    scene.removeItem(hardButtonProxy);
-    scene.removeItem(backButtonProxy);
-    scene.removeItem(soloButtonProxy);
-    scene.removeItem(multiplayerButtonProxy);
-    scene.removeItem(exitButtonProxy);
-    scene.removeItem(titleProxy);
-    scene.removeItem(target1Proxy);
-    scene.removeItem(target2Proxy);
-
-    // Créer et configurer un QLabel pour afficher le compte à rebours
-    countdownLabel.setAlignment(Qt::AlignCenter);
-    countdownLabel.setFont(QFont("Arial", 96, QFont::Bold));
-    countdownLabel.setStyleSheet("color: rgb(101, 67, 33);"); // mettre la police en blanc
-    countdownLabel.setAttribute(Qt::WA_TranslucentBackground);
-
-    // Ajouter le QLabel à la scène
-    QGraphicsProxyWidget *countdownLabelProxy = scene.addWidget(&countdownLabel);
-    countdownLabelProxy->setPos(view.width() / 2 - countdownLabel.width() / 2, view.height() / 2 - countdownLabel.height() / 2);
-
-    countdownTimer.setInterval(1000); // Interval de 1000 ms (1 seconde)
-    countdownTimer.setSingleShot(false); // Répéter le timer
-
-    // Variables pour gérer le compte à rebours
-    int countdownDuration = 5;
-    int countdownCounter = 0;
-
-    // Connecter le QTimer à une fonction lambda qui met à jour le QLabel
-    QObject::connect(&countdownTimer, &QTimer::timeout, [&]() {
-        countdownCounter++;
-        countdownLabel.setText(QString::number(countdownDuration - countdownCounter));
-
-        if (countdownCounter == countdownDuration) {
-            countdownTimer.stop();
-            // À ce stade, le compte à rebours est terminé.
-            // Vous pouvez commencer le mode Solo Easy ici.
-        }
-    });
-
-    // Démarrer le compte à rebours
-    countdownLabel.setText(QString::number(countdownDuration));
-    countdownTimer.start();}
-
 
 int main(int argc, char *argv[])
 {
@@ -259,20 +203,6 @@ int main(int argc, char *argv[])
         hardButtonProxy->setVisible(false);
         backButtonProxy->setVisible(false);
     });
-
-    //connexion au solo easy
-    QObject::connect(&easyButton, &QPushButton::clicked, [&]() {
-        startGameEasy(scene, view, countdownLabel,
-                      dynamic_cast<QGraphicsProxyWidget *>(easyButton.graphicsProxyWidget()),
-                      dynamic_cast<QGraphicsProxyWidget *>(hardButton.graphicsProxyWidget()),
-                      dynamic_cast<QGraphicsProxyWidget *>(backButton.graphicsProxyWidget()),
-                      dynamic_cast<QGraphicsProxyWidget *>(soloButton.graphicsProxyWidget()),
-                      dynamic_cast<QGraphicsProxyWidget *>(multiplayerButton.graphicsProxyWidget()),
-                      dynamic_cast<QGraphicsProxyWidget *>(exitButton.graphicsProxyWidget()),
-                      titleProxy, target1Proxy, target2Proxy);
-    });
-
-
 
 
     // Ajouter la vue au layout principal
