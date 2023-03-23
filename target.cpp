@@ -2,12 +2,12 @@
 #include <QPainter>
 #include <QMouseEvent>
 
-Target::Target(QWidget *parent) : QWidget(parent)
+Target::Target(QWidget parent) : QWidget(parent)
 {
     setAttribute(Qt::WA_TranslucentBackground);
 }
 
-void Target::paintEvent(QPaintEvent *event)
+void Target::paintEvent(QPaintEventevent)
 {
     Q_UNUSED(event);
 
@@ -34,6 +34,6 @@ void Target::mousePressEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton) {
         emit clicked();
+
     }
 }
-

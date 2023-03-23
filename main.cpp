@@ -9,15 +9,11 @@
 #include <QGraphicsProxyWidget>
 #include <QMessageBox>
 #include <QDesktopWidget>
-#include <QTimer>
 #include <QTime>
 #include <QRandomGenerator>
-#include <QElapsedTimer>
+#include <QTimer>
 
 #include "target.h"
-
-//variable globale
-QTimer countdownTimer;
 
 // Fonction pour afficher les règles du jeu
 void showRules()
@@ -31,7 +27,6 @@ void showRules()
                             "Amusez-vous bien!");
     rulesMessageBox.exec();
 }
-
 
 // Fonction pour passer au menu Solo
 void switchToSoloMenu(QGraphicsScene &scene,
@@ -84,54 +79,71 @@ QPointF generateRandomTargetPosition(QGraphicsView &view, Target *target) {
     return QPointF(x, y);
 }
 
+//génère une target de manière random
+Target* createRandomTarget(QGraphicsScene &scene, QGraphicsView &view) {
+    Target *newTarget = new Target();
+    QPointF randomPosition = generateRandomTargetPosition(view, newTarget);
+    newTarget->setFixedSize(150, 150);
+    scene.addWidget(newTarget)->setPos(randomPosition);
+    return newTarget;
+}
 
-void startGameEasy(QGraphicsScene &scene, QGraphicsView &view, QLabel &countdownLabel,
-                   QGraphicsProxyWidget *easyButtonProxy, QGraphicsProxyWidget *hardButtonProxy, QGraphicsProxyWidget *backButtonProxy,
-                   QGraphicsProxyWidget *soloButtonProxy, QGraphicsProxyWidget *multiplayerButtonProxy, QGraphicsProxyWidget *exitButtonProxy,
-                   QGraphicsProxyWidget *titleProxy, QGraphicsProxyWidget *target1Proxy, QGraphicsProxyWidget *target2Proxy) {
-    // Retirer les boutons, les targets et le titre de la scène
-    scene.removeItem(easyButtonProxy);
-    scene.removeItem(hardButtonProxy);
-    scene.removeItem(backButtonProxy);
-    scene.removeItem(soloButtonProxy);
-    scene.removeItem(multiplayerButtonProxy);
-    scene.removeItem(exitButtonProxy);
-    scene.removeItem(titleProxy);
-    scene.removeItem(target1Proxy);
-    scene.removeItem(target2Proxy);
+void onTargetClicked(QGraphicsScene &scene, QGraphicsView &view, Target *clickedTarget) {
+    // Créez une nouvelle cible
+    Target *newTarget = createRandomTarget(scene, view);
 
-    // Créer et configurer un QLabel pour afficher le compte à rebours
-    countdownLabel.setAlignment(Qt::AlignCenter);
-    countdownLabel.setFont(QFont("Arial", 96, QFont::Bold));
-    countdownLabel.setStyleSheet("color: rgb(101, 67, 33);"); // mettre la police en blanc
-    countdownLabel.setAttribute(Qt::WA_TranslucentBackground);
-
-    // Ajouter le QLabel à la scène
-    QGraphicsProxyWidget *countdownLabelProxy = scene.addWidget(&countdownLabel);
-    countdownLabelProxy->setPos(view.width() / 2 - countdownLabel.width() / 2, view.height() / 2 - countdownLabel.height() / 2);
-
-    countdownTimer.setInterval(1000); // Interval de 1000 ms (1 seconde)
-    countdownTimer.setSingleShot(false); // Répéter le timer
-
-    // Variables pour gérer le compte à rebours
-    int countdownDuration = 5;
-    int countdownCounter = 0;
-
-    // Connecter le QTimer à une fonction lambda qui met à jour le QLabel
-    QObject::connect(&countdownTimer, &QTimer::timeout, [&]() {
-        countdownCounter++;
-        countdownLabel.setText(QString::number(countdownDuration - countdownCounter));
-
-        if (countdownCounter == countdownDuration) {
-            countdownTimer.stop();
-            // À ce stade, le compte à rebours est terminé.
-            // Vous pouvez commencer le mode Solo Easy ici.
-        }
+    // Connectez le signal clicked de la nouvelle cible à la fonction onTargetClicked
+    QObject::connect(newTarget, &Target::clicked, [&scene, &view, newTarget]() {
+        onTargetClicked(scene, view, newTarget);
     });
 
-    // Démarrer le compte à rebours
-    countdownLabel.setText(QString::number(countdownDuration));
-    countdownTimer.start();}
+    // Supprimez la cible cliquée
+    scene.removeItem(scene.itemAt(clickedTarget->pos(), QTransform()));
+    delete clickedTarget;
+}
+
+
+
+void startGameEasy(QGraphicsScene &scene, QGraphicsView &view, QPushButton &easyButton,
+                   QPushButton &hardButton, QPushButton &backButton,
+                   QPushButton &soloButton, QPushButton &multiplayerButton, QPushButton &exitButton,
+                   QLabel &title, Target *target1, Target *target2,  QTimer &gameTimer) {
+    // Masquez tous les éléments du menu
+    easyButton.hide();
+    hardButton.hide();
+    backButton.hide();
+    soloButton.hide();
+    multiplayerButton.hide();
+    exitButton.hide();
+    title.hide();
+    target1->hide();
+    target2->hide();
+
+    Target *newTarget = createRandomTarget(scene, view);
+    QObject::connect(newTarget, &Target::clicked, [&scene, &view, newTarget]() {
+        onTargetClicked(scene, view, newTarget);
+    });
+
+    // Démarrez le QTimer pour une durée de 20 secondes
+    gameTimer.setSingleShot(true);
+    gameTimer.start(20000);
+}
+void endGameEasy(QGraphicsScene &scene, QGraphicsView &view) {
+    // Supprimez tous les éléments de la scène
+    QList<QGraphicsItem *> items = scene.items();
+    for (QGraphicsItem *item : items) {
+        scene.removeItem(item);
+    }
+
+    // Affichez la pop-up
+    QMessageBox endGameMessageBox;
+    endGameMessageBox.setWindowTitle("Jeu terminé");
+    endGameMessageBox.setText("La partie est terminée !");
+    endGameMessageBox.exec();
+
+    // Ici, vous pouvez ajouter des instructions pour réinitialiser la scène, si nécessaire.
+}
+
 
 
 int main(int argc, char *argv[])
@@ -154,17 +166,11 @@ int main(int argc, char *argv[])
     view.setStyleSheet("background-color: transparent; border: none;");
 
     //déclaration d'un timer pour le jeu
-    QLabel countdownLabel;
-    countdownLabel.setAlignment(Qt::AlignCenter);
-    countdownLabel.setFont(QFont("Arial", 96, QFont::Bold));
-    countdownLabel.setStyleSheet("color: rgb(101, 67, 33);");
-    countdownLabel.setAttribute(Qt::WA_TranslucentBackground);
-
+    QTimer gameTimer;
 
     // Ajouter un espace en haut
     QSpacerItem *topSpacer = new QSpacerItem(0, 100);
     layout.addItem(topSpacer);
-
 
     // Créer le titre
     QLabel title("CoinCoinShooter");
@@ -189,6 +195,10 @@ int main(int argc, char *argv[])
     target2->setFixedSize(150, 150);
     QGraphicsProxyWidget *target2Proxy = scene.addWidget(target2);
     target2Proxy->setPos(view.width() / 2 - target2->width() / 2 - 600, view.height() / 2 - target2->height() / 2 - 100);
+
+    QObject::connect(target2, &Target::clicked, [&scene, &view](){
+        createRandomTarget(scene, view);
+    });
 
     // Créer le bouton "Solo"
     QPushButton soloButton("Solo");
@@ -260,20 +270,13 @@ int main(int argc, char *argv[])
         backButtonProxy->setVisible(false);
     });
 
-    //connexion au solo easy
-    QObject::connect(&easyButton, &QPushButton::clicked, [&]() {
-        startGameEasy(scene, view, countdownLabel,
-                      dynamic_cast<QGraphicsProxyWidget *>(easyButton.graphicsProxyWidget()),
-                      dynamic_cast<QGraphicsProxyWidget *>(hardButton.graphicsProxyWidget()),
-                      dynamic_cast<QGraphicsProxyWidget *>(backButton.graphicsProxyWidget()),
-                      dynamic_cast<QGraphicsProxyWidget *>(soloButton.graphicsProxyWidget()),
-                      dynamic_cast<QGraphicsProxyWidget *>(multiplayerButton.graphicsProxyWidget()),
-                      dynamic_cast<QGraphicsProxyWidget *>(exitButton.graphicsProxyWidget()),
-                      titleProxy, target1Proxy, target2Proxy);
+    QObject::connect(&easyButton, &QPushButton::clicked, [&](){
+        startGameEasy(scene, view, easyButton, hardButton, backButton, soloButton, multiplayerButton, exitButton, title, target1, target2, gameTimer);
     });
 
-
-
+    QObject::connect(&gameTimer, &QTimer::timeout, [&scene, &view](){
+        endGameEasy(scene, view);
+    });
 
     // Ajouter la vue au layout principal
     layout.addWidget(&view);
