@@ -13,7 +13,7 @@ find_package(Qt5 COMPONENTS
         Widgets
         REQUIRED)
 
-add_executable(qt main.cpp mainWindow.h mainWindow.cpp target.h target.cpp)
+add_executable(qt main.cpp mainWindow.h mainWindow.cpp target.h target.cpp gamehandler.h gamehandler.cpp)
 target_link_libraries(qt
         Qt5::Core
         Qt5::Gui

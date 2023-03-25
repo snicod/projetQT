@@ -12,8 +12,10 @@
 #include <QTime>
 #include <QRandomGenerator>
 #include <QTimer>
+#include <QDebug>
 
 #include "target.h"
+#include "gamehandler.h"
 
 // Fonction pour afficher les règles du jeu
 void showRules()
@@ -53,6 +55,7 @@ void switchToSoloMenu(QGraphicsScene &scene,
     scene.addItem(&backButtonProxy);
 }
 
+//fct pour le bouton retour après avoir cliqué sur solo
 void switchToMainMenu(QGraphicsScene &scene,
                       QGraphicsProxyWidget &easyButtonProxy,
                       QGraphicsProxyWidget &hardButtonProxy,
@@ -72,42 +75,47 @@ void switchToMainMenu(QGraphicsScene &scene,
     scene.addItem(exitButtonProxy);
 }
 
-// Génère une position aléatoire pour la cible
-QPointF generateRandomTargetPosition(QGraphicsView &view, Target *target) {
-    int x = QRandomGenerator::global()->bounded(view.width() - target->width());
-    int y = QRandomGenerator::global()->bounded(view.height() - target->height());
-    return QPointF(x, y);
+//fct qui permet un retour au menu à la fin d'une partie
+void resetToMainMenu(QGraphicsScene &scene, QGraphicsView &view, QPushButton &easyButton,
+                     QPushButton &hardButton, QPushButton &backButton,
+                     QPushButton &soloButton, QPushButton &multiplayerButton, QPushButton &exitButton,
+                     QLabel &title, Target *target1, Target *target2) {
+    // Réinitialisez tous les éléments du menu
+    easyButton.show();
+    hardButton.show();
+    backButton.show();
+    soloButton.show();
+    multiplayerButton.show();
+    exitButton.show();
+    title.show();
+    target1->show();
+    target2->show();
+
+    // Affichez le menu principal
+    switchToMainMenu(scene, *scene.addWidget(&easyButton), *scene.addWidget(&hardButton), *scene.addWidget(&backButton),
+                     scene.addWidget(&soloButton), scene.addWidget(&multiplayerButton), scene.addWidget(&exitButton));
 }
 
-//génère une target de manière random
-Target* createRandomTarget(QGraphicsScene &scene, QGraphicsView &view) {
-    Target *newTarget = new Target();
-    QPointF randomPosition = generateRandomTargetPosition(view, newTarget);
-    newTarget->setFixedSize(150, 150);
-    scene.addWidget(newTarget)->setPos(randomPosition);
-    return newTarget;
-}
-
-void onTargetClicked(QGraphicsScene &scene, QGraphicsView &view, Target *clickedTarget) {
+void onTargetClicked(QGraphicsScene &scene, QGraphicsView &view, Target *clickedTarget, int &targetsHitCount, GameHandler &gameHandler) {
     // Créez une nouvelle cible
-    Target *newTarget = createRandomTarget(scene, view);
+    Target *newTarget = gameHandler.createRandomTarget(scene, view);
 
     // Connectez le signal clicked de la nouvelle cible à la fonction onTargetClicked
-    QObject::connect(newTarget, &Target::clicked, [&scene, &view, newTarget]() {
-        onTargetClicked(scene, view, newTarget);
+    QObject::connect(newTarget, &Target::clicked, [&scene, &view, newTarget, &targetsHitCount, &gameHandler]() {
+        onTargetClicked(scene, view, newTarget, targetsHitCount, gameHandler);
     });
 
     // Supprimez la cible cliquée
     scene.removeItem(scene.itemAt(clickedTarget->pos(), QTransform()));
     delete clickedTarget;
+    targetsHitCount++;
 }
-
 
 
 void startGameEasy(QGraphicsScene &scene, QGraphicsView &view, QPushButton &easyButton,
                    QPushButton &hardButton, QPushButton &backButton,
                    QPushButton &soloButton, QPushButton &multiplayerButton, QPushButton &exitButton,
-                   QLabel &title, Target *target1, Target *target2,  QTimer &gameTimer) {
+                   QLabel &title, Target *target1, Target *target2,  QTimer &gameTimer, int &targetHitCount, GameHandler &gameHandler) {
     // Masquez tous les éléments du menu
     easyButton.hide();
     hardButton.hide();
@@ -119,32 +127,41 @@ void startGameEasy(QGraphicsScene &scene, QGraphicsView &view, QPushButton &easy
     target1->hide();
     target2->hide();
 
-    Target *newTarget = createRandomTarget(scene, view);
-    QObject::connect(newTarget, &Target::clicked, [&scene, &view, newTarget]() {
-        onTargetClicked(scene, view, newTarget);
+    // Créez la première cible
+    Target *newTarget = gameHandler.createRandomTarget(scene, view);
+
+    // Connectez le signal clicked de la nouvelle cible à la fonction onTargetClicked
+    QObject::connect(newTarget, &Target::clicked, [&scene, &view, newTarget, &targetHitCount, &gameHandler]() {
+        onTargetClicked(scene, view, newTarget, targetHitCount, gameHandler);
     });
 
     // Démarrez le QTimer pour une durée de 20 secondes
     gameTimer.setSingleShot(true);
-    gameTimer.start(20000);
+    gameTimer.start(5000);
 }
-void endGameEasy(QGraphicsScene &scene, QGraphicsView &view) {
-    // Supprimez tous les éléments de la scène
-    QList<QGraphicsItem *> items = scene.items();
-    for (QGraphicsItem *item : items) {
-        scene.removeItem(item);
-    }
+
+void endGameEasy(QGraphicsScene &scene, QGraphicsView &view, int targetsHitCount, std::function<void()> callback) {
 
     // Affichez la pop-up
     QMessageBox endGameMessageBox;
     endGameMessageBox.setWindowTitle("Jeu terminé");
-    endGameMessageBox.setText("La partie est terminée !");
+    endGameMessageBox.setText(QString("La partie est terminée !\n\nCibles touchées : %1").arg(targetsHitCount));
+    endGameMessageBox.addButton(QMessageBox::Ok);
+
+    // Connectez le signal clicked du bouton OK de la boîte de dialogue à la fonction de rappel
+    QObject::connect(endGameMessageBox.button(QMessageBox::Ok), &QPushButton::clicked, callback);
+
+// Exécutez la boîte de dialogue
     endGameMessageBox.exec();
 
-    // Ici, vous pouvez ajouter des instructions pour réinitialiser la scène, si nécessaire.
+    // Parcourir tous les éléments de la scène et les afficher dans la console
+    for (QGraphicsItem *item : scene.items()) {
+        qDebug() << "Element:" << item
+                 << "Type:" << item->type()
+                 << "Position:" << item->pos();
+    }
+
 }
-
-
 
 int main(int argc, char *argv[])
 {
@@ -165,8 +182,11 @@ int main(int argc, char *argv[])
     view.setFixedSize(QApplication::desktop()->screenGeometry().width(), QApplication::desktop()->screenGeometry().height());
     view.setStyleSheet("background-color: transparent; border: none;");
 
-    //déclaration d'un timer pour le jeu
+    //déclaration variable utile pour les parties
     QTimer gameTimer;
+    int targetsHitCount = 0;
+    GameHandler gameHandler(scene, view, targetsHitCount);
+
 
     // Ajouter un espace en haut
     QSpacerItem *topSpacer = new QSpacerItem(0, 100);
@@ -196,9 +216,10 @@ int main(int argc, char *argv[])
     QGraphicsProxyWidget *target2Proxy = scene.addWidget(target2);
     target2Proxy->setPos(view.width() / 2 - target2->width() / 2 - 600, view.height() / 2 - target2->height() / 2 - 100);
 
-    QObject::connect(target2, &Target::clicked, [&scene, &view](){
-        createRandomTarget(scene, view);
+    QObject::connect(target2, &Target::clicked, [&scene, &view, &gameHandler](){
+        gameHandler.createRandomTarget(scene, view);
     });
+
 
     // Créer le bouton "Solo"
     QPushButton soloButton("Solo");
@@ -271,11 +292,14 @@ int main(int argc, char *argv[])
     });
 
     QObject::connect(&easyButton, &QPushButton::clicked, [&](){
-        startGameEasy(scene, view, easyButton, hardButton, backButton, soloButton, multiplayerButton, exitButton, title, target1, target2, gameTimer);
+        startGameEasy(scene, view, easyButton, hardButton, backButton, soloButton, multiplayerButton, exitButton, title, target1, target2, gameTimer, targetsHitCount, gameHandler);
+        targetsHitCount = 0; // Réinitialisez le compteur de cibles touchées au début de chaque partie
     });
 
-    QObject::connect(&gameTimer, &QTimer::timeout, [&scene, &view](){
-        endGameEasy(scene, view);
+    QObject::connect(&gameTimer, &QTimer::timeout, [&](){
+        endGameEasy(scene, view, targetsHitCount, [&]() {
+            resetToMainMenu(scene, view, easyButton, hardButton, backButton, soloButton, multiplayerButton, exitButton, title, target1, target2);
+        });
     });
 
     // Ajouter la vue au layout principal
