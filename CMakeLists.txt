@@ -19,4 +19,3 @@ target_link_libraries(qt
         Qt5::Gui
         Qt5::Widgets
         )
-

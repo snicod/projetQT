@@ -1,5 +1,3 @@
-// gamehandler.cpp
-
 #include "gamehandler.h"
 #include <QGraphicsItem>
 #include <QGraphicsProxyWidget>
@@ -14,6 +12,7 @@ Target *GameHandler::createRandomTarget(QGraphicsScene &scene, QGraphicsView &vi
     QPointF randomPosition = generateRandomTargetPosition(view, newTarget);
     newTarget->setFixedSize(150, 150);
     scene.addWidget(newTarget)->setPos(randomPosition);
+    lastCreatedTarget = newTarget;
     return newTarget;
 }
 
@@ -27,4 +26,12 @@ QPointF GameHandler::generateRandomTargetPosition(QGraphicsView &view, Target *t
     int y = QRandomGenerator::global()->bounded(y_min, y_max);
 
     return QPointF(x, y);
+}
+
+Target* GameHandler::getLastCreatedTarget() {
+    return lastCreatedTarget;
+}
+
+void GameHandler::setLastCreatedTarget(Target *target) {
+    lastCreatedTarget = target;
 }
