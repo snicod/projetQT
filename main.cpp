@@ -13,6 +13,9 @@
     #include <QRandomGenerator>
     #include <QTimer>
     #include <QDebug>
+    #include <QFile>
+    #include <QTextStream>
+
 
     #include "target.h"
     #include "gamehandler.h"
@@ -102,6 +105,32 @@
     }
 
 
+    int readBestScore(const QString &fileName, const QString &gameMode) {
+        QFile file(fileName + "_" + gameMode + ".txt");
+
+        if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+            return 0;
+        }
+
+        QTextStream in(&file);
+        int bestScore = in.readLine().toInt();
+        file.close();
+        return bestScore;
+    }
+
+    void saveBestScore(const QString &fileName, int bestScore, const QString &gameMode) {
+        QFile file(fileName + "_" + gameMode + ".txt");
+
+        if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+            return;
+        }
+
+        QTextStream out(&file);
+        out << bestScore;
+        file.close();
+    }
+
+
     void startGameEasy(QGraphicsScene &scene, QGraphicsView &view, QPushButton &easyButton,
                        QPushButton &hardButton, QPushButton &backButton,
                        QPushButton &soloButton, QPushButton &multiplayerButton, QPushButton &exitButton,
@@ -133,7 +162,7 @@
     void endGameEasy(QGraphicsScene &scene, QGraphicsView &view, QPushButton &easyButton,
                      QPushButton &hardButton, QPushButton &backButton,
                      QPushButton &soloButton, QPushButton &multiplayerButton, QPushButton &exitButton,
-                     QLabel &title, Target *target1, Target *target2,  QTimer &gameTimer, int &targetsHitCount, GameHandler &gameHandler) {
+                     QLabel &title, Target *target1, Target *target2,  QTimer &gameTimer, int &targetsHitCount, GameHandler &gameHandler, const QString &scoreFileName) {
 
         // Supprimez la dernière cible créée
         if (gameHandler.getLastCreatedTarget()) {
@@ -142,10 +171,19 @@
             gameHandler.setLastCreatedTarget(nullptr);
         }
 
+        // Lisez le meilleur score actuel
+        int bestScore = readBestScore(scoreFileName, "easy");
+
+        // Mettez à jour le meilleur score si nécessaire
+        if (targetsHitCount > bestScore) {
+            bestScore = targetsHitCount;
+            saveBestScore(scoreFileName, bestScore, "easy");
+        }
+
         // Affichez la pop-up
         QMessageBox endGameMessageBox;
         endGameMessageBox.setWindowTitle("Jeu terminé");
-        endGameMessageBox.setText(QString("La partie est terminée !\n\nCibles touchées : %1").arg(targetsHitCount));
+        endGameMessageBox.setText(QString("La partie est terminée !\n\nCibles touchées : %1\n\nMeilleur score : %2").arg(targetsHitCount).arg(bestScore));
         endGameMessageBox.addButton(QMessageBox::Ok);
 
         // Exécutez la boîte de dialogue
@@ -159,8 +197,8 @@
                      << "Type:" << item->type()
                      << "Position:" << item->pos();
         }
-
     }
+
 
 
     int main(int argc, char *argv[])
@@ -186,7 +224,7 @@
         QTimer gameTimer;
         int targetsHitCount = 0;
         GameHandler gameHandler(scene, view, targetsHitCount);
-
+        QString scoreFileName = "best_score";
 
         // Ajouter un espace en haut
         QSpacerItem *topSpacer = new QSpacerItem(0, 100);
@@ -296,8 +334,9 @@
 
         // Connexion du signal "clicked" du bouton de la pop up en fin de partie
         QObject::connect(&gameTimer, &QTimer::timeout, [&](){
-            endGameEasy(scene, view, easyButton, hardButton, backButton, soloButton, multiplayerButton, exitButton, title, target1, target2, gameTimer, targetsHitCount, gameHandler);
+            endGameEasy(scene, view, easyButton, hardButton, backButton, soloButton, multiplayerButton, exitButton, title, target1, target2, gameTimer, targetsHitCount, gameHandler, scoreFileName);
         });
+
 
         // Ajouter la vue au layout principal
         layout.addWidget(&view);
