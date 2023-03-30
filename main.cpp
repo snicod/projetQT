@@ -20,6 +20,9 @@
 #include "target.h"
 #include "gamehandler.h"
 
+void onTargetClickedHard(QGraphicsScene &scene, QGraphicsView &view, Target *clickedTarget, int &targetsHitCount, GameHandler &gameHandler, QTimer &hardModeTimer);
+void onTimeoutHard(QGraphicsScene &scene, QGraphicsView &view, Target *oldTarget, int &targetsHitCount, GameHandler &gameHandler, QTimer &hardModeTimer);
+
 // Fonction pour afficher les règles du jeu
 void showRules()
 {
@@ -119,8 +122,15 @@ void onTargetClickedHard(QGraphicsScene &scene, QGraphicsView &view, Target *cli
     targetsHitCount++;
 
     // Redémarrer le timer
+    hardModeTimer.stop();
+    hardModeTimer.setSingleShot(true);
+    hardModeTimer.disconnect();
+    QObject::connect(&hardModeTimer, &QTimer::timeout, [&scene, &view, newTarget, &targetsHitCount, &gameHandler, &hardModeTimer]() {
+        onTimeoutHard(scene, view, newTarget, targetsHitCount, gameHandler, hardModeTimer);
+    });
     hardModeTimer.start(1000);
 }
+
 
 
 int readBestScore(const QString &fileName, const QString &gameMode) {
