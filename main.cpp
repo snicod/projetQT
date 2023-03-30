@@ -250,8 +250,14 @@ void startGameHard(QGraphicsScene &scene, QGraphicsView &view, QPushButton &easy
         onTimeoutHard(scene, view, newTarget, targetsHitCount, gameHandler, hardModeTimer);
     });
 
+    // Démarrez le QTimer pour une durée de 20 secondes
+    gameTimer.setSingleShot(true);
+    gameTimer.start(5000);
+
     // Démarrez le timer
     hardModeTimer.start();
+
+
 }
 
 
@@ -297,6 +303,44 @@ void endGameEasy(QGraphicsScene &scene, QGraphicsView &view, QPushButton &easyBu
     }
 }
 
+void endGameHard(QGraphicsScene &scene, QGraphicsView &view, QPushButton &easyButton,
+                 QPushButton &hardButton, QPushButton &backButton,
+                 QPushButton &soloButton, QPushButton &multiplayerButton, QPushButton &exitButton,
+                 QLabel &title, Target *target1, Target *target2, int &targetsHitCount, GameHandler &gameHandler, QTimer &hardModeTimer, const QString &scoreFileName) {
+
+    // Arrêtez le timer hardMode
+    hardModeTimer.stop();
+
+    // Supprimez la dernière cible créée
+    if (gameHandler.getLastCreatedTarget()) {
+        scene.removeItem(scene.itemAt(gameHandler.getLastCreatedTarget()->pos(), QTransform()));
+        delete gameHandler.getLastCreatedTarget();
+        gameHandler.setLastCreatedTarget(nullptr);
+    }
+
+    // Lisez le meilleur score actuel
+    int bestScore = readBestScore(scoreFileName, "hard");
+
+    // Mettez à jour le meilleur score si nécessaire
+    if (targetsHitCount > bestScore) {
+        bestScore = targetsHitCount;
+        saveBestScore(scoreFileName, bestScore, "hard");
+    }
+
+    // Affichez un message de fin de partie avec le nombre de cibles touchées
+    QMessageBox endGameMessageBox;
+    endGameMessageBox.setWindowTitle("Jeu terminé");
+    endGameMessageBox.setText(QString("La partie est terminée !\n\nCibles touchées : %1\n\nMeilleur score : %2").arg(targetsHitCount).arg(bestScore));
+    endGameMessageBox.addButton(QMessageBox::Ok);
+
+    // Exécutez la boîte de dialogue
+    endGameMessageBox.exec();
+
+    resetToMainMenu(scene, view, easyButton, hardButton, backButton, soloButton, multiplayerButton, exitButton, title, target1, target2);
+
+}
+
+
 
 
 int main(int argc, char *argv[])
@@ -319,7 +363,8 @@ int main(int argc, char *argv[])
     view.setStyleSheet("background-color: transparent; border: none;");
 
     //déclaration variable utile pour les parties
-    QTimer gameTimer;
+    QTimer gameTimerEasy;
+    QTimer gameTimerHard;
     int targetsHitCount = 0;
     GameHandler gameHandler(scene, view, targetsHitCount);
     QString scoreFileName = "best_score";
@@ -428,19 +473,24 @@ int main(int argc, char *argv[])
 
     // Connexion du signal "clicked" du bouton easy
     QObject::connect(&easyButton, &QPushButton::clicked, [&](){
-        startGameEasy(scene, view, easyButton, hardButton, backButton, soloButton, multiplayerButton, exitButton, title, target1, target2, gameTimer, targetsHitCount, gameHandler);
+        startGameEasy(scene, view, easyButton, hardButton, backButton, soloButton, multiplayerButton, exitButton, title, target1, target2, gameTimerEasy, targetsHitCount, gameHandler);
         targetsHitCount = 0; // Réinitialisez le compteur de cibles touchées au début de chaque partie
     });
 
     // Connexion du signal "clicked" du bouton de la pop up en fin de partie
-    QObject::connect(&gameTimer, &QTimer::timeout, [&](){
-        endGameEasy(scene, view, easyButton, hardButton, backButton, soloButton, multiplayerButton, exitButton, title, target1, target2, gameTimer, targetsHitCount, gameHandler, scoreFileName);
+    QObject::connect(&gameTimerEasy, &QTimer::timeout, [&](){
+        endGameEasy(scene, view, easyButton, hardButton, backButton, soloButton, multiplayerButton, exitButton, title, target1, target2, gameTimerEasy, targetsHitCount, gameHandler, scoreFileName);
     });
 
     QObject::connect(&hardButton, &QPushButton::clicked, [&]() {
-        startGameHard(scene, view, easyButton, hardButton, backButton, soloButton, multiplayerButton, exitButton, title, target1, target2, gameTimer, targetsHitCount, gameHandler, hardModeTimer);
+        startGameHard(scene, view, easyButton, hardButton, backButton, soloButton, multiplayerButton, exitButton, title, target1, target2, gameTimerHard, targetsHitCount, gameHandler, hardModeTimer);
         targetsHitCount = 0; // Réinitialisez le compteur de cibles touchées au début de chaque partie
     });
+
+    QObject::connect(&gameTimerHard, &QTimer::timeout, [&]() {
+        endGameHard(scene, view, easyButton, hardButton, backButton, soloButton, multiplayerButton, exitButton, title, target1, target2, targetsHitCount, gameHandler, hardModeTimer, scoreFileName);
+    });
+
 
 
 
