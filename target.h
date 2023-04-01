@@ -2,6 +2,10 @@
 #define TARGET_H
 
 #include <QWidget>
+#include <QMediaPlayer>
+#include <QRandomGenerator>
+#include <QStringList>
+#include <QMediaPlaylist>
 
 class Target : public QWidget
 {
@@ -16,6 +20,10 @@ signals:
 protected:
     void paintEvent(QPaintEvent *event) override;
     void mousePressEvent(QMouseEvent *event) override;
+
+private:
+    QMediaPlayer mediaPlayer;
+    QStringList audioFiles;
 };
 
-#endif
+#endif // TARGET_H

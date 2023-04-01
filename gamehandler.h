@@ -12,10 +12,8 @@ Q_OBJECT
 public:
     GameHandler(QGraphicsScene &scene, QGraphicsView &view, int &targetsHitCount);
     Target *createRandomTarget(QGraphicsScene &scene, QGraphicsView &view);
-    void targetClicked(Target *clickedTarget);
     Target* getLastCreatedTarget();
     void setLastCreatedTarget(Target *target);
-
 private:
     QGraphicsScene &m_scene;
     QGraphicsView &m_view;

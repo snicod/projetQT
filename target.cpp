@@ -2,15 +2,18 @@
 #include <QPainter>
 #include <QMouseEvent>
 
-Target::Target(QWidget *parent) : QWidget(parent)
+Target::Target(QWidget *parent) : QWidget(parent),
+                                  mediaPlayer(this)
 {
     setAttribute(Qt::WA_TranslucentBackground);
+
+    audioFiles << "../duck-quack1.wav"
+               << "../duck-quack1.wav";
+    mediaPlayer.setMedia(QUrl(audioFiles[0]));
 }
 
 void Target::paintEvent(QPaintEvent *event)
 {
-    Q_UNUSED(event);
-
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
 
@@ -33,7 +36,10 @@ void Target::paintEvent(QPaintEvent *event)
 void Target::mousePressEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton) {
+        int randomIndex = QRandomGenerator::global()->bounded(audioFiles.size());
+        mediaPlayer.setMedia(QUrl(audioFiles[randomIndex]));
+        mediaPlayer.setPosition(0);
+        mediaPlayer.play();
         emit clicked();
     }
 }
-
