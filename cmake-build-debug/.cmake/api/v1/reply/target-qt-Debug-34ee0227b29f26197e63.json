@@ -30,19 +30,19 @@
 			{
 				"command" : 0,
 				"file" : 0,
-				"line" : 16,
+				"line" : 19,
 				"parent" : 0
 			},
 			{
 				"command" : 1,
 				"file" : 0,
-				"line" : 17,
+				"line" : 21,
 				"parent" : 0
 			},
 			{
 				"command" : 4,
 				"file" : 0,
-				"line" : 9,
+				"line" : 11,
 				"parent" : 0
 			},
 			{
@@ -166,7 +166,8 @@
 				1,
 				3,
 				5,
-				7
+				7,
+				10
 			]
 		}
 	],
@@ -238,7 +239,8 @@
 				1,
 				3,
 				5,
-				7
+				7,
+				10
 			]
 		},
 		{
@@ -254,14 +256,16 @@
 			"name" : "",
 			"sourceIndexes" : 
 			[
-				8
+				8,
+				9
 			]
 		},
 		{
 			"name" : "CMake Rules",
 			"sourceIndexes" : 
 			[
-				9
+				11,
+				12
 			]
 		}
 	],
@@ -314,6 +318,11 @@
 			"sourceGroupIndex" : 0
 		},
 		{
+			"backtrace" : 1,
+			"path" : "resources.qrc",
+			"sourceGroupIndex" : 2
+		},
+		{
 			"backtrace" : 0,
 			"isGenerated" : true,
 			"path" : "cmake-build-debug/qt_autogen/timestamp",
@@ -321,8 +330,21 @@
 		},
 		{
 			"backtrace" : 0,
+			"compileGroupIndex" : 0,
+			"isGenerated" : true,
+			"path" : "cmake-build-debug/qt_autogen/EWIEGA46WW/qrc_resources.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 0,
 			"isGenerated" : true,
 			"path" : "cmake-build-debug/qt_autogen/timestamp.rule",
+			"sourceGroupIndex" : 3
+		},
+		{
+			"backtrace" : 0,
+			"isGenerated" : true,
+			"path" : "cmake-build-debug/qt_autogen/EWIEGA46WW/qrc_resources.cpp.rule",
 			"sourceGroupIndex" : 3
 		}
 	],

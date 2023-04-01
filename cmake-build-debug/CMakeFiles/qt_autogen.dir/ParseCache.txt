@@ -328,7 +328,6 @@
  mdp:/usr/lib/gcc/x86_64-linux-gnu/11/include/stddef.h
  mdp:/usr/lib/gcc/x86_64-linux-gnu/11/include/stdint.h
  mdp:/usr/lib/gcc/x86_64-linux-gnu/11/include/syslimits.h
-/home/simon/Bureau/IUT/2eAnnee/S4/qtTuto/reparation proj/projetQT/main.cpp
 /home/simon/Bureau/IUT/2eAnnee/S4/qtTuto/reparation proj/projetQT/gamehandler.h
  mmc:Q_OBJECT
  mdp:/home/simon/Bureau/IUT/2eAnnee/S4/qtTuto/reparation proj/projetQT/gamehandler.h
@@ -707,6 +706,7 @@
  mdp:/usr/lib/gcc/x86_64-linux-gnu/11/include/stdint.h
  mdp:/usr/lib/gcc/x86_64-linux-gnu/11/include/syslimits.h
 /home/simon/Bureau/IUT/2eAnnee/S4/qtTuto/reparation proj/projetQT/mainWindow.cpp
+/home/simon/Bureau/IUT/2eAnnee/S4/qtTuto/reparation proj/projetQT/main.cpp
 /home/simon/Bureau/IUT/2eAnnee/S4/qtTuto/reparation proj/projetQT/target.cpp
 /home/simon/Bureau/IUT/2eAnnee/S4/qtTuto/reparation proj/projetQT/target.h
  mmc:Q_OBJECT

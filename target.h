@@ -21,8 +21,11 @@ protected:
     void paintEvent(QPaintEvent *event) override;
     void mousePressEvent(QMouseEvent *event) override;
 
+private slots: // Ajoutez cette ligne
+    void onMediaStatusChanged(QMediaPlayer::MediaStatus status);
+
 private:
-    QMediaPlayer mediaPlayer;
+    QMediaPlayer *mediaPlayer;
     QStringList audioFiles;
 };
 

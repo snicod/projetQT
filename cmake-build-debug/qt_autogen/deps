@@ -27,6 +27,7 @@ qt_autogen/timestamp: \
 	/home/simon/Bureau/IUT/2eAnnee/S4/qtTuto/reparation\ proj/projetQT/main.cpp \
 	/home/simon/Bureau/IUT/2eAnnee/S4/qtTuto/reparation\ proj/projetQT/mainWindow.cpp \
 	/home/simon/Bureau/IUT/2eAnnee/S4/qtTuto/reparation\ proj/projetQT/mainWindow.h \
+	/home/simon/Bureau/IUT/2eAnnee/S4/qtTuto/reparation\ proj/projetQT/resources.qrc \
 	/home/simon/Bureau/IUT/2eAnnee/S4/qtTuto/reparation\ proj/projetQT/target.cpp \
 	/home/simon/Bureau/IUT/2eAnnee/S4/qtTuto/reparation\ proj/projetQT/target.h \
 	/usr/include/asm-generic/errno-base.h \

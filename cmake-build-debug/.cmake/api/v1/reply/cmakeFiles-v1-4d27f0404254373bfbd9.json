@@ -322,6 +322,9 @@
 		{
 			"isExternal" : true,
 			"path" : "/usr/lib/x86_64-linux-gnu/cmake/Qt5Network/Qt5Network_QNetworkManagerEnginePlugin.cmake"
+		},
+		{
+			"path" : "resources.qrc"
 		}
 	],
 	"kind" : "cmakeFiles",

@@ -80,7 +80,8 @@
 		"/usr/lib/x86_64-linux-gnu/cmake/Qt5Network/Qt5NetworkConfig.cmake",
 		"/usr/lib/x86_64-linux-gnu/cmake/Qt5Network/Qt5Network_QConnmanEnginePlugin.cmake",
 		"/usr/lib/x86_64-linux-gnu/cmake/Qt5Network/Qt5Network_QGenericEnginePlugin.cmake",
-		"/usr/lib/x86_64-linux-gnu/cmake/Qt5Network/Qt5Network_QNetworkManagerEnginePlugin.cmake"
+		"/usr/lib/x86_64-linux-gnu/cmake/Qt5Network/Qt5Network_QNetworkManagerEnginePlugin.cmake",
+		"/home/simon/Bureau/IUT/2eAnnee/S4/qtTuto/reparation proj/projetQT/resources.qrc"
 	],
 	"CMAKE_SOURCE_DIR" : "/home/simon/Bureau/IUT/2eAnnee/S4/qtTuto/reparation proj/projetQT",
 	"DEP_FILE" : "/home/simon/Bureau/IUT/2eAnnee/S4/qtTuto/reparation proj/projetQT/cmake-build-debug/qt_autogen/deps",

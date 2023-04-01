@@ -6,6 +6,8 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
+set(RESOURCES resources.qrc)
+
 find_package(Qt5 COMPONENTS
         Core
         Gui
@@ -13,7 +15,9 @@ find_package(Qt5 COMPONENTS
         Multimedia
         REQUIRED)
 
-add_executable(qt main.cpp mainWindow.h mainWindow.cpp target.h target.cpp gamehandler.h gamehandler.cpp)
+
+add_executable(qt main.cpp mainWindow.h mainWindow.cpp target.h target.cpp gamehandler.h gamehandler.cpp ${RESOURCES})
+
 target_link_libraries(qt
         Qt5::Core
         Qt5::Gui

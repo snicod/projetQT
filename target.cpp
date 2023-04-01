@@ -1,16 +1,21 @@
 #include "target.h"
 #include <QPainter>
 #include <QMouseEvent>
+#include <QDebug>
 
 Target::Target(QWidget *parent) : QWidget(parent),
-                                  mediaPlayer(this)
+                                  mediaPlayer(new QMediaPlayer(this))
 {
     setAttribute(Qt::WA_TranslucentBackground);
 
-    audioFiles << "../duck-quack1.wav"
-               << "../duck-quack1.wav";
-    mediaPlayer.setMedia(QUrl(audioFiles[0]));
+    audioFiles << "qrc:/sounds/duck-quack1.wav"
+               << "qrc:/sounds/duck-quack2.wav";
+    mediaPlayer->setMedia(QUrl(audioFiles[0]));
+
+    // Connectez le signal mediaStatusChanged au nouveau slot
+    connect(mediaPlayer, &QMediaPlayer::mediaStatusChanged, this, &Target::onMediaStatusChanged);
 }
+
 
 void Target::paintEvent(QPaintEvent *event)
 {
@@ -37,9 +42,23 @@ void Target::mousePressEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton) {
         int randomIndex = QRandomGenerator::global()->bounded(audioFiles.size());
-        mediaPlayer.setMedia(QUrl(audioFiles[randomIndex]));
-        mediaPlayer.setPosition(0);
-        mediaPlayer.play();
+        mediaPlayer->setMedia(QUrl(audioFiles[randomIndex]));
+        mediaPlayer->setPosition(0);
+
+        // Supprimez mediaPlayer->play() d'ici
+
+        qDebug() << "Playing sound:" << audioFiles[randomIndex];
+        qDebug() << "Media status:" << mediaPlayer->mediaStatus();
+        qDebug() << "Error:" << mediaPlayer->errorString();
+
         emit clicked();
     }
 }
+
+void Target::onMediaStatusChanged(QMediaPlayer::MediaStatus status)
+{
+    if (status == QMediaPlayer::LoadedMedia) {
+        mediaPlayer->play();
+    }
+}
+
