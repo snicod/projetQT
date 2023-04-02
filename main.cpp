@@ -16,6 +16,8 @@
 #include <QFile>
 #include <QTextStream>
 #include <functional>
+#include <QMediaPlayer>
+
 
 #include "target.h"
 #include "gamehandler.h"
@@ -95,7 +97,23 @@ void onTarget1Clicked(QGraphicsScene &scene, QGraphicsView &view, Target *target
     QGraphicsPixmapItem *canardItem = new QGraphicsPixmapItem(canardPixmap.scaled(QSize(500, 500), Qt::KeepAspectRatio));
     canardItem->setPos(target1->pos());
     scene.addItem(canardItem);
+
+    // Créer et configurer QMediaPlayer pour jouer le son
+    QMediaPlayer *mediaPlayer = new QMediaPlayer;
+    mediaPlayer->setMedia(QUrl("qrc:/sounds/duck-quack2.wav"));
+    mediaPlayer->setVolume(100);
+
+    // Jouer le son
+    mediaPlayer->play();
+
+    // Supprimer le mediaPlayer lorsque le son est terminé
+    QObject::connect(mediaPlayer, &QMediaPlayer::mediaStatusChanged, [mediaPlayer](QMediaPlayer::MediaStatus status) {
+        if (status == QMediaPlayer::EndOfMedia) {
+            mediaPlayer->deleteLater();
+        }
+    });
 }
+
 
 
 void onTargetClicked(QGraphicsScene &scene, QGraphicsView &view, Target *clickedTarget, int &targetsHitCount, GameHandler &gameHandler) {
