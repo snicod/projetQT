@@ -1,4 +1,5 @@
 # ninja log v5
+<<<<<<< HEAD
 3755	4321	1680431880752621000	qt	3d706c82a3d3fcf5
 3683	6020	1680430745074578523	CMakeFiles/qt.dir/gamehandler.cpp.o	fcbd00f6d198e42c
 3	32	1680431876468663181	/home/simon/Bureau/IUT/2eAnnee/S4/qtTuto/reparation proj/projetQT/cmake-build-debug/qt_autogen/timestamp	915454969a2459f4
@@ -33,3 +34,61 @@
 3	73	1680435963917502445	/home/simon/Bureau/IUT/2eAnnee/S4/qtTuto/reparation proj/projetQT/cmake-build-debug/qt_autogen/mocs_compilation.cpp	915454969a2459f4
 75	3266	1680435967113502976	CMakeFiles/qt.dir/main.cpp.o	c979515c50d76cec
 3266	3987	1680435967829503094	qt	3d706c82a3d3fcf5
+=======
+2419	3119	1680365516705939853	qt	fd1598aac6fc0880
+4052	6459	1680359419868973391	CMakeFiles/qt.dir/gamehandler.cpp.o	fcbd00f6d198e42c
+3	20	1680365513609656524	/home/simon/Bureau/IUT/2eAnnee/S4/qtTuto/reparation proj/projetQT/cmake-build-debug/qt_autogen/timestamp	915454969a2459f4
+336	4763	1680359418168981491	CMakeFiles/qt.dir/main.cpp.o	c979515c50d76cec
+0	234	1680365791338696855	build.ninja	d3256891a4ed072f
+21	2418	1680365516009869657	CMakeFiles/qt.dir/target.cpp.o	a923213d98912cb4
+3	20	1680365513609656524	/home/simon/Bureau/IUT/2eAnnee/S4/qtTuto/reparation proj/projetQT/cmake-build-debug/qt_autogen/mocs_compilation.cpp	915454969a2459f4
+2	16	1679387074447539667	/home/simon/Bureau/IUT/2eAnnee/S4/qt/cmake-build-debug/qt_autogen/mocs_compilation.cpp	941928367f489339
+3	20	1680365513609656524	qt_autogen/mocs_compilation.cpp	915454969a2459f4
+336	4051	1680359417456984885	CMakeFiles/qt.dir/qt_autogen/mocs_compilation.cpp.o	cc727e9a452166db
+2	16	1679387074447539667	/home/simon/Bureau/IUT/2eAnnee/S4/qt/cmake-build-debug/qt_autogen/timestamp	941928367f489339
+583	3100	1680356141968307695	CMakeFiles/qt.dir/mainWindow.cpp.o	74327009c30cf6d8
+3	20	1680365513609656524	qt_autogen/timestamp	915454969a2459f4
+0	105	1680365791338696855	build.ninja	d3256891a4ed072f
+3	18	1680365791370703808	qt_autogen/timestamp	915454969a2459f4
+3	18	1680365791370703808	qt_autogen/mocs_compilation.cpp	915454969a2459f4
+3	18	1680365791370703808	/home/simon/Bureau/IUT/2eAnnee/S4/qtTuto/reparation proj/projetQT/cmake-build-debug/qt_autogen/timestamp	915454969a2459f4
+3	18	1680365791370703808	/home/simon/Bureau/IUT/2eAnnee/S4/qtTuto/reparation proj/projetQT/cmake-build-debug/qt_autogen/mocs_compilation.cpp	915454969a2459f4
+19	28	1680365791378705547	qt_autogen/EWIEGA46WW/qrc_resources.cpp	5e61cd2ad9997134
+19	28	1680365791378705547	/home/simon/Bureau/IUT/2eAnnee/S4/qtTuto/reparation proj/projetQT/cmake-build-debug/qt_autogen/EWIEGA46WW/qrc_resources.cpp	5e61cd2ad9997134
+28	129	1680365791482728146	CMakeFiles/qt.dir/qt_autogen/EWIEGA46WW/qrc_resources.cpp.o	ea4157ae343961d
+28	2454	1680365793803233152	CMakeFiles/qt.dir/target.cpp.o	a923213d98912cb4
+2454	3200	1680365794547395498	qt	3d706c82a3d3fcf5
+3	21	1680365979055774102	qt_autogen/timestamp	915454969a2459f4
+3	21	1680365979055774102	qt_autogen/mocs_compilation.cpp	915454969a2459f4
+3	21	1680365979055774102	/home/simon/Bureau/IUT/2eAnnee/S4/qtTuto/reparation proj/projetQT/cmake-build-debug/qt_autogen/timestamp	915454969a2459f4
+3	21	1680365979055774102	/home/simon/Bureau/IUT/2eAnnee/S4/qtTuto/reparation proj/projetQT/cmake-build-debug/qt_autogen/mocs_compilation.cpp	915454969a2459f4
+23	2591	1680365981623757384	CMakeFiles/qt.dir/target.cpp.o	a923213d98912cb4
+2591	3346	1680365982371754650	qt	3d706c82a3d3fcf5
+23	338	1680366210876775782	qt_autogen/timestamp	915454969a2459f4
+23	338	1680366210876775782	qt_autogen/mocs_compilation.cpp	915454969a2459f4
+23	338	1680366210876775782	/home/simon/Bureau/IUT/2eAnnee/S4/qtTuto/reparation proj/projetQT/cmake-build-debug/qt_autogen/timestamp	915454969a2459f4
+23	338	1680366210876775782	/home/simon/Bureau/IUT/2eAnnee/S4/qtTuto/reparation proj/projetQT/cmake-build-debug/qt_autogen/mocs_compilation.cpp	915454969a2459f4
+3	3810	1680366356649415076	CMakeFiles/qt.dir/qt_autogen/mocs_compilation.cpp.o	cc727e9a452166db
+4	3892	1680366356729414555	CMakeFiles/qt.dir/target.cpp.o	a923213d98912cb4
+3	4398	1680366357233411328	CMakeFiles/qt.dir/main.cpp.o	c979515c50d76cec
+3811	6951	1680366359789395846	CMakeFiles/qt.dir/gamehandler.cpp.o	fcbd00f6d198e42c
+6951	7891	1680366360721390536	qt	3d706c82a3d3fcf5
+3	282	1680366658778520132	qt_autogen/timestamp	915454969a2459f4
+3	282	1680366658778520132	qt_autogen/mocs_compilation.cpp	915454969a2459f4
+3	282	1680366658778520132	/home/simon/Bureau/IUT/2eAnnee/S4/qtTuto/reparation proj/projetQT/cmake-build-debug/qt_autogen/timestamp	915454969a2459f4
+3	282	1680366658778520132	/home/simon/Bureau/IUT/2eAnnee/S4/qtTuto/reparation proj/projetQT/cmake-build-debug/qt_autogen/mocs_compilation.cpp	915454969a2459f4
+282	4021	1680366662522492812	CMakeFiles/qt.dir/qt_autogen/mocs_compilation.cpp.o	cc727e9a452166db
+284	4035	1680366662538492696	CMakeFiles/qt.dir/target.cpp.o	a923213d98912cb4
+283	4341	1680366662842490484	CMakeFiles/qt.dir/main.cpp.o	c979515c50d76cec
+4022	6318	1680366664818476142	CMakeFiles/qt.dir/gamehandler.cpp.o	fcbd00f6d198e42c
+6318	7013	1680366665510471131	qt	3d706c82a3d3fcf5
+5	461	1680430739502652051	qt_autogen/timestamp	915454969a2459f4
+5	461	1680430739502652051	qt_autogen/mocs_compilation.cpp	915454969a2459f4
+5	461	1680430739502652051	/home/simon/Bureau/IUT/2eAnnee/S4/qtTuto/reparation proj/projetQT/cmake-build-debug/qt_autogen/timestamp	915454969a2459f4
+5	461	1680430739502652051	/home/simon/Bureau/IUT/2eAnnee/S4/qtTuto/reparation proj/projetQT/cmake-build-debug/qt_autogen/mocs_compilation.cpp	915454969a2459f4
+462	3683	1680430742734609666	CMakeFiles/qt.dir/qt_autogen/mocs_compilation.cpp.o	cc727e9a452166db
+463	4187	1680430743238602990	CMakeFiles/qt.dir/target.cpp.o	a923213d98912cb4
+462	4971	1680430744022592575	CMakeFiles/qt.dir/main.cpp.o	c979515c50d76cec
+3683	6020	1680430745074578523	CMakeFiles/qt.dir/gamehandler.cpp.o	fcbd00f6d198e42c
+6020	6683	1680430745730569720	qt	3d706c82a3d3fcf5
+>>>>>>> 4f765d01cd6a26da89baea1baab603fdbcc33bc7
