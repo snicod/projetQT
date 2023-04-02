@@ -2,15 +2,16 @@
 #include <QPainter>
 #include <QMouseEvent>
 
+
 Target::Target(QWidget *parent) : QWidget(parent)
+
 {
     setAttribute(Qt::WA_TranslucentBackground);
 }
 
+
 void Target::paintEvent(QPaintEvent *event)
 {
-    Q_UNUSED(event);
-
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
 
@@ -33,7 +34,9 @@ void Target::paintEvent(QPaintEvent *event)
 void Target::mousePressEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton) {
-        emit clicked();
+                emit clicked();
     }
 }
+
+
 

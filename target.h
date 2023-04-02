@@ -2,6 +2,8 @@
 #define TARGET_H
 
 #include <QWidget>
+#include <QRandomGenerator>
+#include <QStringList>
 
 class Target : public QWidget
 {
@@ -16,6 +18,7 @@ signals:
 protected:
     void paintEvent(QPaintEvent *event) override;
     void mousePressEvent(QMouseEvent *event) override;
+
 };
 
-#endif
+#endif // TARGET_H

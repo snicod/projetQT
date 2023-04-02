@@ -12,116 +12,187 @@
 #include <QTime>
 #include <QRandomGenerator>
 #include <QTimer>
-#include <QDebug>
+#include <QFile>
+#include <QTextStream>
+#include <functional>
+#include <QMediaPlayer>
 
 #include "target.h"
 #include "gamehandler.h"
 
+void onTargetClickedHard(QGraphicsScene &scene, QGraphicsView &view, Target *clickedTarget, int &targetsHitCount, GameHandler &gameHandler, QTimer &hardModeTimer);
+void onTimeoutHard(QGraphicsScene &scene, QGraphicsView &view, Target *oldTarget, int &targetsHitCount, GameHandler &gameHandler, QTimer &hardModeTimer);
+
 // Fonction pour afficher les règles du jeu
-void showRules()
-{
-    QMessageBox rulesMessageBox;
-    rulesMessageBox.setWindowTitle("Règles du jeu");
-    rulesMessageBox.setText("Voici les règles du jeu:\n\n"
-                            "1. Solo_easy : Des cibles vont apparaître une à une pendant 30 secondes. Le but du jeu et de tirer sur le plus de cibles possibles pendant le temps imparti.\n\n"
-                            "2. Solo_difficile : Des  cibles vont apparaître une à une pendant 30 secondes. Contrairement au premier mode de jeu les cibles disparaissent au bout de 1 seconde et sont plus petites. Vous devez donc être réactif !\n\n"
-                            "3. Multijoueur : Je sais pas encore trop\n\n"
-                            "Amusez-vous bien!");
-    rulesMessageBox.exec();
-}
+    void showRules()
+    {
+        QMessageBox rulesMessageBox;
+        rulesMessageBox.setWindowTitle("Règles du jeu");
+        rulesMessageBox.setText("Voici les règles du jeu:\n\n"
+                                "1. Solo_easy : Des cibles vont apparaître une à une pendant 10 secondes. Le but du jeu et de tirer sur le plus de cibles possibles pendant le temps imparti.\n\n"
+                                "2. Solo_difficile : Des  cibles vont apparaître une à une pendant 30 secondes. Contrairement au premier mode de jeu les cibles disparaissent rapidement    . Vous devez donc être réactif !\n\n"
+                                "Essayez de cliquer sur  la cible de droite du menu pour faire apparaitre un canard et le faire chanter !\n\n"
+                                "Amusez-vous bien!");
+        rulesMessageBox.exec();
+    }
 
 // Fonction pour passer au menu Solo
-void switchToSoloMenu(QGraphicsScene &scene,
-                      QGraphicsProxyWidget &easyButtonProxy,
-                      QGraphicsProxyWidget &hardButtonProxy,
-                      QGraphicsProxyWidget &backButtonProxy,
-                      QGraphicsProxyWidget *soloButtonProxy,
-                      QGraphicsProxyWidget *multiplayerButtonProxy,
-                      QGraphicsProxyWidget *exitButtonProxy)
+void switchToSoloMenu(QPushButton &easyButton, QPushButton &hardButton, QPushButton &backButton,
+                      QPushButton &soloButton, QPushButton &rulesButton, QPushButton &exitButton)
 {
-    // Supprimer les boutons existants de la scène
-    scene.removeItem(soloButtonProxy);
-    scene.removeItem(multiplayerButtonProxy);
-    scene.removeItem(exitButtonProxy);
+    // Masquer les boutons "Solo", "Règles" et "Quitter"
+    soloButton.hide();
+    rulesButton.hide();
+    exitButton.hide();
 
-    // Ajouter les boutons "Facile", "Difficile" et "Retour" à la scène et les positionner
-    easyButtonProxy.setPos(soloButtonProxy->pos());
-    scene.addItem(&easyButtonProxy);
-
-    hardButtonProxy.setPos(multiplayerButtonProxy->pos());
-    scene.addItem(&hardButtonProxy);
-
-    backButtonProxy.setPos(exitButtonProxy->pos());
-    scene.addItem(&backButtonProxy);
+    // Afficher les boutons "Facile", "Difficile" et "Retour"
+    easyButton.show();
+    hardButton.show();
+    backButton.show();
 }
+
 
 //fct pour le bouton retour après avoir cliqué sur solo
-void switchToMainMenu(QGraphicsScene &scene,
-                      QGraphicsProxyWidget &easyButtonProxy,
-                      QGraphicsProxyWidget &hardButtonProxy,
-                      QGraphicsProxyWidget &backButtonProxy,
-                      QGraphicsProxyWidget *soloButtonProxy,
-                      QGraphicsProxyWidget *multiplayerButtonProxy,
-                      QGraphicsProxyWidget *exitButtonProxy)
+void switchToMainMenu(QPushButton &easyButton,
+                      QPushButton &hardButton,
+                      QPushButton &backButton,
+                      QPushButton &soloButton,
+                      QPushButton &rulesButton,
+                      QPushButton &exitButton)
 {
-    // Supprimer les boutons "Facile", "Difficile" et "Retour" de la scène
-    scene.removeItem(&easyButtonProxy);
-    scene.removeItem(&hardButtonProxy);
-    scene.removeItem(&backButtonProxy);
+    // Masquer les boutons "Facile", "Difficile" et "Retour"
+    easyButton.hide();
+    hardButton.hide();
+    backButton.hide();
 
-    // Ajouter les boutons "Solo", "Multijoueur" et "Quitter" à la scène
-    scene.addItem(soloButtonProxy);
-    scene.addItem(multiplayerButtonProxy);
-    scene.addItem(exitButtonProxy);
+    // Afficher les boutons "Solo", "Règles" et "Quitter"
+    soloButton.show();
+    rulesButton.show();
+    exitButton.show();
 }
+
 
 //fct qui permet un retour au menu à la fin d'une partie
 void resetToMainMenu(QGraphicsScene &scene, QGraphicsView &view, QPushButton &easyButton,
                      QPushButton &hardButton, QPushButton &backButton,
-                     QPushButton &soloButton, QPushButton &multiplayerButton, QPushButton &exitButton,
+                     QPushButton &soloButton, QPushButton &rulesButton, QPushButton &exitButton,
                      QLabel &title, Target *target1, Target *target2) {
     // Réinitialisez tous les éléments du menu
-    easyButton.show();
-    hardButton.show();
-    backButton.show();
     soloButton.show();
-    multiplayerButton.show();
+    rulesButton.show();
     exitButton.show();
     title.show();
     target1->show();
     target2->show();
 
-    // Affichez le menu principal
-    switchToMainMenu(scene, *scene.addWidget(&easyButton), *scene.addWidget(&hardButton), *scene.addWidget(&backButton),
-                     scene.addWidget(&soloButton), scene.addWidget(&multiplayerButton), scene.addWidget(&exitButton));
+    // Masquer les boutons "Facile", "Difficile" et "Retour"
+    easyButton.hide();
+    hardButton.hide();
+    backButton.hide();
+}
+
+void onTarget1Clicked(QGraphicsScene &scene, QGraphicsView &view, Target *target1) {
+    QPixmap canardPixmap("canard.jpg");
+    QGraphicsPixmapItem *canardItem = new QGraphicsPixmapItem(canardPixmap.scaled(QSize(500, 500), Qt::KeepAspectRatio));
+    canardItem->setPos(target1->pos());
+    scene.addItem(canardItem);
+
+    // Créer et configurer QMediaPlayer pour jouer le son
+    QMediaPlayer *mediaPlayer = new QMediaPlayer;
+    mediaPlayer->setMedia(QUrl("qrc:/sounds/duck-quack2.wav"));
+    mediaPlayer->setVolume(100);
+
+    // Jouer le son
+    mediaPlayer->play();
+
+    // Supprimer le mediaPlayer lorsque le son est terminé
+    QObject::connect(mediaPlayer, &QMediaPlayer::mediaStatusChanged, [mediaPlayer](QMediaPlayer::MediaStatus status) {
+        if (status == QMediaPlayer::EndOfMedia) {
+            mediaPlayer->deleteLater();
+        }
+    });
 }
 
 void onTargetClicked(QGraphicsScene &scene, QGraphicsView &view, Target *clickedTarget, int &targetsHitCount, GameHandler &gameHandler) {
-    // Créez une nouvelle cible
-    Target *newTarget = gameHandler.createRandomTarget(scene, view);
-
-    // Connectez le signal clicked de la nouvelle cible à la fonction onTargetClicked
-    QObject::connect(newTarget, &Target::clicked, [&scene, &view, newTarget, &targetsHitCount, &gameHandler]() {
-        onTargetClicked(scene, view, newTarget, targetsHitCount, gameHandler);
-    });
-
     // Supprimez la cible cliquée
     scene.removeItem(scene.itemAt(clickedTarget->pos(), QTransform()));
     delete clickedTarget;
     targetsHitCount++;
+
+    // Créez une nouvelle cible après une courte pause
+    QTimer::singleShot(50, [&scene, &view, &targetsHitCount, &gameHandler]() {
+        Target *newTarget = gameHandler.createRandomTarget(scene, view);
+
+        // Connectez le signal clicked de la nouvelle cible à la fonction onTargetClicked
+        QObject::connect(newTarget, &Target::clicked, [&scene, &view, newTarget, &targetsHitCount, &gameHandler]() {
+            onTargetClicked(scene, view, newTarget, targetsHitCount, gameHandler);
+        });
+    });
 }
 
+void onTargetClickedHard(QGraphicsScene &scene, QGraphicsView &view, Target *clickedTarget, int &targetsHitCount, GameHandler &gameHandler, QTimer &hardModeTimer) {
+    // Supprimez la cible cliquée
+    scene.removeItem(scene.itemAt(clickedTarget->pos(), QTransform()));
+    delete clickedTarget;
+    targetsHitCount++;
+
+    // Créez une nouvelle cible après une courte pause
+    QTimer::singleShot(50, [&scene, &view, &targetsHitCount, &gameHandler, &hardModeTimer]() {
+        Target *newTarget = gameHandler.createRandomTarget(scene, view);
+
+        // Connectez le signal clicked de la nouvelle cible à la fonction onTargetClickedHard
+        QObject::connect(newTarget, &Target::clicked, [&scene, &view, newTarget, &targetsHitCount, &gameHandler, &hardModeTimer]() {
+            onTargetClickedHard(scene, view, newTarget, targetsHitCount, gameHandler, hardModeTimer);
+        });
+
+        // Redémarrer le timer
+        hardModeTimer.stop();
+        hardModeTimer.setSingleShot(true);
+        hardModeTimer.disconnect();
+        QObject::connect(&hardModeTimer, &QTimer::timeout, [&scene, &view, newTarget, &targetsHitCount, &gameHandler, &hardModeTimer]() {
+            onTimeoutHard(scene, view, newTarget, targetsHitCount, gameHandler, hardModeTimer);
+        });
+        hardModeTimer.start(1000);
+    });
+    hardModeTimer.stop();
+}
+
+int readBestScore(const QString &fileName, const QString &gameMode) {
+    QFile file(fileName + "_" + gameMode + ".txt");
+
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        return 0;
+    }
+
+    QTextStream in(&file);
+    int bestScore = in.readLine().toInt();
+    file.close();
+    return bestScore;
+}
+
+void saveBestScore(const QString &fileName, int bestScore, const QString &gameMode) {
+    QFile file(fileName + "_" + gameMode + ".txt");
+
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        return;
+    }
+
+    QTextStream out(&file);
+    out << bestScore;
+    file.close();
+}
 
 void startGameEasy(QGraphicsScene &scene, QGraphicsView &view, QPushButton &easyButton,
                    QPushButton &hardButton, QPushButton &backButton,
-                   QPushButton &soloButton, QPushButton &multiplayerButton, QPushButton &exitButton,
+                   QPushButton &soloButton, QPushButton &rulesButton, QPushButton &exitButton,
                    QLabel &title, Target *target1, Target *target2,  QTimer &gameTimer, int &targetHitCount, GameHandler &gameHandler) {
+
     // Masquez tous les éléments du menu
     easyButton.hide();
     hardButton.hide();
     backButton.hide();
     soloButton.hide();
-    multiplayerButton.hide();
+    rulesButton.hide();
     exitButton.hide();
     title.hide();
     target1->hide();
@@ -137,29 +208,149 @@ void startGameEasy(QGraphicsScene &scene, QGraphicsView &view, QPushButton &easy
 
     // Démarrez le QTimer pour une durée de 20 secondes
     gameTimer.setSingleShot(true);
-    gameTimer.start(5000);
+    gameTimer.start(10000);
 }
 
-void endGameEasy(QGraphicsScene &scene, QGraphicsView &view, int targetsHitCount, std::function<void()> callback) {
+void onTimeoutHard(QGraphicsScene &scene, QGraphicsView &view, Target *oldTarget, int &targetsHitCount, GameHandler &gameHandler, QTimer &hardModeTimer) {
+    // Supprimez l'ancienne cible
+    scene.removeItem(scene.itemAt(oldTarget->pos(), QTransform()));
+    delete oldTarget;
+
+    // Créez une nouvelle cible
+    Target *newTarget = gameHandler.createRandomTarget(scene, view);
+
+    // Connectez le signal clicked de la nouvelle cible à la fonction onTargetClickedHard
+    QObject::connect(newTarget, &Target::clicked, [&scene, &view, newTarget, &targetsHitCount, &gameHandler, &hardModeTimer]() {
+        onTargetClickedHard(scene, view, newTarget, targetsHitCount, gameHandler, hardModeTimer);
+    });
+
+    // Configurez le timer pour supprimer la cible après 1 seconde si elle n'a pas été cliquée
+    hardModeTimer.setInterval(500);
+    hardModeTimer.setSingleShot(true);
+
+    // Déconnectez les signaux précédents avant de reconnecter
+    hardModeTimer.disconnect();
+    QObject::connect(&hardModeTimer, &QTimer::timeout, [&scene, &view, newTarget, &targetsHitCount, &gameHandler, &hardModeTimer]() {
+        onTimeoutHard(scene, view, newTarget, targetsHitCount, gameHandler, hardModeTimer);
+    });
+
+    // Démarrez le timer
+    hardModeTimer.start();
+}
+
+void startGameHard(QGraphicsScene &scene, QGraphicsView &view, QPushButton &easyButton,
+                   QPushButton &hardButton, QPushButton &backButton,
+                   QPushButton &soloButton, QPushButton &rulesButton, QPushButton &exitButton,
+                   QLabel &title, Target *target1, Target *target2,  QTimer &gameTimer, int &targetsHitCount, GameHandler &gameHandler, QTimer &hardModeTimer) {
+
+    // Masquez tous les éléments du menu
+    easyButton.hide();
+    hardButton.hide();
+    backButton.hide();
+    soloButton.hide();
+    rulesButton.hide();
+    exitButton.hide();
+    title.hide();
+    target1->hide();
+    target2->hide();
+
+    // Créez une nouvelle cible
+    Target *newTarget = gameHandler.createRandomTarget(scene, view);
+
+    // Connectez le signal clicked de la nouvelle cible à la fonction onTargetClickedHard
+    QObject::connect(newTarget, &Target::clicked, [&scene, &view, newTarget, &targetsHitCount, &gameHandler, &hardModeTimer]() {
+        onTargetClickedHard(scene, view, newTarget, targetsHitCount, gameHandler, hardModeTimer);
+    });
+
+    // Configurez le timer pour supprimer la cible après 1 seconde si elle n'a pas été cliquée
+    hardModeTimer.setInterval(500);
+    hardModeTimer.setSingleShot(true);
+
+    // Déconnectez les signaux précédents avant de reconnecter
+    hardModeTimer.disconnect();
+    QObject::connect(&hardModeTimer, &QTimer::timeout, [&scene, &view, newTarget, &targetsHitCount, &gameHandler, &hardModeTimer]() {
+        onTimeoutHard(scene, view, newTarget, targetsHitCount, gameHandler, hardModeTimer);
+    });
+
+    // Démarrez le QTimer pour une durée de 20 secondes
+    gameTimer.setSingleShot(true);
+    gameTimer.start(10000);
+
+    // Démarrez le timer
+    hardModeTimer.start();
+
+
+}
+
+void endGameEasy(QGraphicsScene &scene, QGraphicsView &view, QPushButton &easyButton,
+                 QPushButton &hardButton, QPushButton &backButton,
+                 QPushButton &soloButton, QPushButton &rulesButton, QPushButton &exitButton,
+                 QLabel &title, Target *target1, Target *target2,  QTimer &gameTimer, int &targetsHitCount, GameHandler &gameHandler, const QString &scoreFileName) {
+
+    // Supprimez la dernière cible créée
+    if (gameHandler.getLastCreatedTarget()) {
+        scene.removeItem(scene.itemAt(gameHandler.getLastCreatedTarget()->pos(), QTransform()));
+        delete gameHandler.getLastCreatedTarget();
+        gameHandler.setLastCreatedTarget(nullptr);
+    }
+
+    // Lisez le meilleur score actuel
+    int bestScore = readBestScore(scoreFileName, "easy");
+
+    // Mettez à jour le meilleur score si nécessaire
+    if (targetsHitCount > bestScore) {
+        bestScore = targetsHitCount;
+        saveBestScore(scoreFileName, bestScore, "easy");
+    }
 
     // Affichez la pop-up
     QMessageBox endGameMessageBox;
     endGameMessageBox.setWindowTitle("Jeu terminé");
-    endGameMessageBox.setText(QString("La partie est terminée !\n\nCibles touchées : %1").arg(targetsHitCount));
+    endGameMessageBox.setText(QString("La partie est terminée !\n\nCibles touchées : %1\n\nMeilleur score : %2").arg(targetsHitCount).arg(bestScore));
     endGameMessageBox.addButton(QMessageBox::Ok);
 
-    // Connectez le signal clicked du bouton OK de la boîte de dialogue à la fonction de rappel
-    QObject::connect(endGameMessageBox.button(QMessageBox::Ok), &QPushButton::clicked, callback);
-
-// Exécutez la boîte de dialogue
+    // Exécutez la boîte de dialogue
     endGameMessageBox.exec();
 
-    // Parcourir tous les éléments de la scène et les afficher dans la console
-    for (QGraphicsItem *item : scene.items()) {
-        qDebug() << "Element:" << item
-                 << "Type:" << item->type()
-                 << "Position:" << item->pos();
+    resetToMainMenu(scene, view, easyButton, hardButton, backButton, soloButton, rulesButton, exitButton, title, target1, target2);
+
+
+}
+
+void endGameHard(QGraphicsScene &scene, QGraphicsView &view, QPushButton &easyButton,
+                 QPushButton &hardButton, QPushButton &backButton,
+                 QPushButton &soloButton, QPushButton &rulesButton, QPushButton &exitButton,
+                 QLabel &title, Target *target1, Target *target2, int &targetsHitCount, GameHandler &gameHandler, QTimer &hardModeTimer, const QString &scoreFileName) {
+
+    // Arrêtez le timer hardMode
+    hardModeTimer.stop();
+
+    // Supprimez la dernière cible créée
+    if (gameHandler.getLastCreatedTarget()) {
+        scene.removeItem(scene.itemAt(gameHandler.getLastCreatedTarget()->pos(), QTransform()));
+        delete gameHandler.getLastCreatedTarget();
+        gameHandler.setLastCreatedTarget(nullptr);
     }
+
+    // Lisez le meilleur score actuel
+    int bestScore = readBestScore(scoreFileName, "hard");
+
+    // Mettez à jour le meilleur score si nécessaire
+    if (targetsHitCount > bestScore) {
+        bestScore = targetsHitCount;
+        saveBestScore(scoreFileName, bestScore, "hard");
+    }
+
+    // Affichez un message de fin de partie avec le nombre de cibles touchées
+    QMessageBox endGameMessageBox;
+    endGameMessageBox.setWindowTitle("Jeu terminé");
+    endGameMessageBox.setText(QString("La partie est terminée !\n\nCibles touchées : %1\n\nMeilleur score : %2").arg(targetsHitCount).arg(bestScore));
+    endGameMessageBox.addButton(QMessageBox::Ok);
+
+    // Exécutez la boîte de dialogue
+    endGameMessageBox.exec();
+
+    resetToMainMenu(scene, view, easyButton, hardButton, backButton, soloButton, rulesButton, exitButton, title, target1, target2);
 
 }
 
@@ -182,11 +373,14 @@ int main(int argc, char *argv[])
     view.setFixedSize(QApplication::desktop()->screenGeometry().width(), QApplication::desktop()->screenGeometry().height());
     view.setStyleSheet("background-color: transparent; border: none;");
 
-    //déclaration variable utile pour les parties
-    QTimer gameTimer;
+    //déclaration variable utile pour les parties (utilisées dans les fonctions)
+    QTimer gameTimerEasy;
+    QTimer gameTimerHard;
     int targetsHitCount = 0;
     GameHandler gameHandler(scene, view, targetsHitCount);
-
+    QString scoreFileName = "best_score";
+    QTimer hardModeTimer;
+    hardModeTimer.setSingleShot(true);
 
     // Ajouter un espace en haut
     QSpacerItem *topSpacer = new QSpacerItem(0, 100);
@@ -196,7 +390,7 @@ int main(int argc, char *argv[])
     QLabel title("CoinCoinShooter");
     title.setAlignment(Qt::AlignCenter);
     title.setFont(QFont("Arial", 96, QFont::Bold));
-    title.setStyleSheet("color: rgb(101, 67, 33);");  // mettre la police en blanc
+    title.setStyleSheet("color: rgb(101, 67, 33);");
     title.setAttribute(Qt::WA_TranslucentBackground);
     QGraphicsProxyWidget *titleProxy = scene.addWidget(&title);
     titleProxy->setPos(view.width() / 2 - title.width() / 2, 100);
@@ -207,8 +401,9 @@ int main(int argc, char *argv[])
     QGraphicsProxyWidget *target1Proxy = scene.addWidget(target1);
     target1Proxy->setPos(titleProxy->pos().x() + title.width() + 50, titleProxy->pos().y());
 
-    //test clic target
-    QObject::connect(target1, &Target::clicked, showRules);
+    QObject::connect(target1, &Target::clicked, [&scene, &view, target1]() {
+        onTarget1Clicked(scene, view, target1);
+    });
 
     // Créer la deuxième cible à gauche des boutons
     Target *target2 = new Target();
@@ -220,7 +415,6 @@ int main(int argc, char *argv[])
         gameHandler.createRandomTarget(scene, view);
     });
 
-
     // Créer le bouton "Solo"
     QPushButton soloButton("Solo");
     soloButton.setFont(QFont("Arial", 48));
@@ -230,14 +424,17 @@ int main(int argc, char *argv[])
     QGraphicsProxyWidget *soloButtonProxy = scene.addWidget(&soloButton);
     soloButtonProxy->setPos(view.width() / 2 - soloButton.width() / 2, view.height() / 2 - soloButton.height() / 2 - 50);
 
-    // Créer le bouton "Multijoueur"
-    QPushButton multiplayerButton("Multijoueur");
-    multiplayerButton.setFont(QFont("Arial", 48));
-    multiplayerButton.setStyleSheet("color: rgb(85, 85, 85); border: 2px solid white ; width: 540px ; height: 110px ;");
+    // Créer le bouton "Règles"
+    QPushButton rulesButton("Règles");
+    rulesButton.setFont(QFont("Arial", 48));
+    rulesButton.setStyleSheet("color: rgb(85, 85, 85); border: 2px solid white ; width: 540px ; height: 110px ;");
 
-    // Ajouter le bouton Multijoueur à la scène
-    QGraphicsProxyWidget *multiplayerButtonProxy = scene.addWidget(&multiplayerButton);
-    multiplayerButtonProxy->setPos(view.width() / 2 - multiplayerButton.width() / 2, view.height() / 2 - multiplayerButton.height() / 2 + 50);
+    // Ajouter le bouton Règles à la scène
+    QGraphicsProxyWidget *rulesButtonProxy = scene.addWidget(&rulesButton);
+    rulesButtonProxy->setPos(view.width() / 2 - rulesButton.width() / 2, view.height() / 2 - rulesButton.height() / 2 + 50);
+
+    //Connexion du signal clicked du bouton Règles
+    QObject::connect(&rulesButton, &QPushButton::clicked, &a, [&]() { showRules(); });
 
     // Créer le bouton "Quitter"
     QPushButton exitButton("Quitter");
@@ -269,38 +466,47 @@ int main(int argc, char *argv[])
     easyButtonProxy->setVisible(false);
 
     QGraphicsProxyWidget *hardButtonProxy = scene.addWidget(&hardButton);
-    hardButtonProxy->setPos(multiplayerButtonProxy->pos());
+    hardButtonProxy->setPos(rulesButtonProxy->pos());
     hardButtonProxy->setVisible(false);
 
     QGraphicsProxyWidget *backButtonProxy = scene.addWidget(&backButton);
     backButtonProxy->setPos(exitButtonProxy->pos());
     backButtonProxy->setVisible(false);
 
-// Connexion du signal "clicked" du bouton Solo
+    // Connexion du signal "clicked" du bouton Solo
     QObject::connect(&soloButton, &QPushButton::clicked, [&]() {
-        switchToSoloMenu(scene, *easyButtonProxy, *hardButtonProxy, *backButtonProxy, soloButtonProxy, multiplayerButtonProxy, exitButtonProxy);
-        easyButtonProxy->setVisible(true);
-        hardButtonProxy->setVisible(true);
-        backButtonProxy->setVisible(true);
+        switchToSoloMenu(easyButton, hardButton, backButton, soloButton, rulesButton, exitButton);
     });
 
+
+    // Connexion du signal "clicked" du bouton retour
     QObject::connect(&backButton, &QPushButton::clicked, [&]() {
-        switchToMainMenu(scene, *easyButtonProxy, *hardButtonProxy, *backButtonProxy, soloButtonProxy, multiplayerButtonProxy, exitButtonProxy);
-        easyButtonProxy->setVisible(false);
-        hardButtonProxy->setVisible(false);
-        backButtonProxy->setVisible(false);
+        switchToMainMenu(easyButton, hardButton, backButton, soloButton, rulesButton, exitButton);
     });
 
+
+    // Connexion du signal "clicked" du bouton easy
     QObject::connect(&easyButton, &QPushButton::clicked, [&](){
-        startGameEasy(scene, view, easyButton, hardButton, backButton, soloButton, multiplayerButton, exitButton, title, target1, target2, gameTimer, targetsHitCount, gameHandler);
+        startGameEasy(scene, view, easyButton, hardButton, backButton, soloButton, rulesButton, exitButton, title, target1, target2, gameTimerEasy, targetsHitCount, gameHandler);
         targetsHitCount = 0; // Réinitialisez le compteur de cibles touchées au début de chaque partie
     });
 
-    QObject::connect(&gameTimer, &QTimer::timeout, [&](){
-        endGameEasy(scene, view, targetsHitCount, [&]() {
-            resetToMainMenu(scene, view, easyButton, hardButton, backButton, soloButton, multiplayerButton, exitButton, title, target1, target2);
-        });
+    // Connexion du signal "clicked" du bouton de la pop up en fin de partie
+    QObject::connect(&gameTimerEasy, &QTimer::timeout, [&](){
+        endGameEasy(scene, view, easyButton, hardButton, backButton, soloButton, rulesButton, exitButton, title, target1, target2, gameTimerEasy, targetsHitCount, gameHandler, scoreFileName);
     });
+
+    QObject::connect(&hardButton, &QPushButton::clicked, [&]() {
+        startGameHard(scene, view, easyButton, hardButton, backButton, soloButton, rulesButton, exitButton, title, target1, target2, gameTimerHard, targetsHitCount, gameHandler, hardModeTimer);
+        targetsHitCount = 0; // Réinitialisez le compteur de cibles touchées au début de chaque partie
+    });
+
+    QObject::connect(&gameTimerHard, &QTimer::timeout, [&]() {
+        endGameHard(scene, view, easyButton, hardButton, backButton, soloButton, rulesButton, exitButton, title, target1, target2, targetsHitCount, gameHandler, hardModeTimer, scoreFileName);
+    });
+
+
+
 
     // Ajouter la vue au layout principal
     layout.addWidget(&view);
