@@ -7,9 +7,6 @@ Target::Target(QWidget *parent) : QWidget(parent)
 
 {
     setAttribute(Qt::WA_TranslucentBackground);
-
-
-
 }
 
 
